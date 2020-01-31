@@ -1,0 +1,3 @@
+[submodule "lib/TM74"]
+	path = lib/TM74
+	url = https://github.com/0xF6/TM74.git

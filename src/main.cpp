@@ -4,6 +4,8 @@
 #define RCLK 6
 #define SCLK 7
 
+#define MQ9_AO A5
+#define ON_BOARD_LED 13
 #define ALARM 10
 
 void draw(int co2);
@@ -11,15 +13,13 @@ int getWarningIndex(int co2);
 
 TM74 display(SCLK, RCLK, DIO);
 
-const int analogInPin = A5; 
-const int ledPin = 13;
 int raw_adc = 0;
 float sensorValue = 0;
 
 
                      
 void setup() {
-  pinMode(ledPin, OUTPUT);
+  pinMode(ON_BOARD_LED, OUTPUT);
   pinMode(ALARM, OUTPUT);
 }
   
@@ -30,19 +30,19 @@ void loop() {
   int level = getWarningIndex(sensorValue);
   if(level != -1 && millis() % level == 0)
   {
-    digitalWrite(ledPin, HIGH);
-    digitalWrite(ALARM, 122);
+    digitalWrite(ON_BOARD_LED, HIGH);
+    digitalWrite(ALARM, 255);
   }
   else 
   {
-    digitalWrite(ledPin, LOW);
+    digitalWrite(ON_BOARD_LED, LOW);
     digitalWrite(ALARM, LOW);
   }
 
   if(millis() % 200 != 0)
     return;
-  raw_adc = analogRead(analogInPin);
-  sensorValue = ((10000.0 / 4096.0) * (raw_adc )) + 200;
+  raw_adc     = analogRead(MQ9_AO);
+  sensorValue = ((10000.0 / 4096.0) * raw_adc) + 200;
 }
 
 String ValueToString(int value){
@@ -59,13 +59,15 @@ String ValueToString(int value){
 
 int getWarningIndex(int co2)
 {
-  if(co2 > 1000)
+  if(co2 > 2500) // critical   level
+    return 1;
+  if(co2 > 1000) // warning    level
     return 5;
-  if(co2 > 950)
+  if(co2 > 900)  // alert      level
     return 7;
-  if(co2 > 800)
+  if(co2 > 800)  // top-middle level
     return 50;
-  if(co2 > 600)
+  if(co2 > 600)  // normal     level
     return 1300;
   return -1;
 }

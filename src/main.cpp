@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "TM74.h"
+#include "pin-api.h"
 #define DIO 5
 #define RCLK 6
 #define SCLK 7
@@ -19,8 +20,8 @@ float sensorValue = 0;
 
                      
 void setup() {
-  pinMode(ON_BOARD_LED, OUTPUT);
-  pinMode(ALARM, OUTPUT);
+  pin<ON_BOARD_LED>().mode(OUTPUT);
+  pin<ALARM>().mode(OUTPUT);
 }
   
 void loop() {
@@ -30,18 +31,18 @@ void loop() {
   int level = getWarningIndex(sensorValue);
   if(level != -1 && millis() % level == 0)
   {
-    digitalWrite(ON_BOARD_LED, HIGH);
-    digitalWrite(ALARM, 255);
+    pin<ON_BOARD_LED>().digital().write(HIGH);
+    pin<ALARM>().digital().write(255);
   }
   else 
   {
-    digitalWrite(ON_BOARD_LED, LOW);
-    digitalWrite(ALARM, LOW);
+    pin<ON_BOARD_LED>().digital().write(LOW);
+    pin<ALARM>().digital().write(LOW);
   }
 
   if(millis() % 200 != 0)
     return;
-  raw_adc     = analogRead(MQ9_AO);
+  raw_adc     = pin<MQ9_AO>().analog().read();
   sensorValue = ((10000.0 / 4096.0) * raw_adc) + 200;
 }
 

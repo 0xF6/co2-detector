@@ -43,3 +43,12 @@
 - 7-segment 4-digit display with two-74HC595D-chip (In diagram shows a model with a single 74HC595D chip. You will need to use a different display driver to work with it)
 ```
 
+
+  
+
+<p align="center">
+   <a href="https://ko-fi.com/P5P7YFY5">
+    <img src="https://www.ko-fi.com/img/githubbutton_sm.svg">
+  </a>
+</p>
+

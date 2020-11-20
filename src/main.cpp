@@ -61,7 +61,7 @@ String ValueToString(int value){
 int getWarningIndex(int co2)
 {
   if(co2 > 2500) // critical   level
-    return 1;
+    return 2;
   if(co2 > 1000) // warning    level
     return 5;
   if(co2 > 900)  // alert      level

@@ -110,4 +110,6 @@ void draw(int CO_value)
       Segment(result[1]),
       Segment(result[0])};
   display.writeSegments(segs, sizeof(segs) / sizeof(Segment));
+  delete &result;
+  delete[] &segs;
 }

@@ -2,6 +2,7 @@
 #include "Arduino.h"
 #include "pin-api.h"
 #include <MQUnifiedsensor.h>
+#include <avr/eeprom.h>
 
 void draw(int co2);
 int getWarningIndex(int co2);
@@ -75,20 +76,36 @@ void getIndex(GasType type, float* a, float* b)
   }
 }
 
-
+template<uint8_t pin_id>
+void reboot() {
+  pin<pin_id>().analog().write(HIGH);
+}
+//#define CALIBRATE_MODE 0
 void calibrate(MQUnifiedsensor* mq9, float airRatio){
-    Serial.print("Calibrating please wait.");
+
     float calcR0 = 0;
-    for (int i = 1; i <= 10; i++)
+    #if defined(CALIBRATE_MODE)
+    Serial.print("Calibrating please wait.");
+    for (int i = 1; i <= 100; i++)
     {
         mq9->update();
         calcR0 += mq9->calibrate(airRatio);
         Serial.print(".");
     }
-    mq9->setR0(calcR0 / 10);
+    mq9->setR0(calcR0 / 100);
+    eeprom_write_float(0, calcR0);
+    Serial.print(calcR0);
     Serial.println("  done!.");
+    #else
+    Serial.print("Set ");
+    calcR0 = eeprom_read_float(0);
+    Serial.print(calcR0);
+    Serial.println(" R0");
+    mq9->setR0(calcR0 / 100);
+    #endif
+   
 
-    if (isinf(calcR0))
+    if (isinf(calcR0) || isnan(calcR0))
         sys<13>()
             .kernel_panic("R0 is infite (Open circuit detected) please check your wiring and supply");
     if (calcR0 == 0)

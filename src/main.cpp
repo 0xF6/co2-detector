@@ -72,7 +72,11 @@ void loop()
   noInterrupts();
   sensorValue = value;
   interrupts();
+  if (getUptimeSecond() > 100)
+    reboot<A1>();
 }
+
+
 String ValueToString(int value)
 {
   if (value > 9999)
@@ -108,8 +112,7 @@ void draw(int CO_value)
       Segment(result[3]),
       Segment(result[2]),
       Segment(result[1]),
-      Segment(result[0])};
+      Segment(result[0])
+  };
   display.writeSegments(segs, sizeof(segs) / sizeof(Segment));
-  delete &result;
-  delete[] &segs;
 }

@@ -80,6 +80,11 @@ template<uint8_t pin_id>
 void reboot() {
   pin<pin_id>().analog().write(HIGH);
 }
+long getUptimeSecond()
+{
+  return millis()/1000;
+}
+
 //#define CALIBRATE_MODE 0
 void calibrate(MQUnifiedsensor* mq9, float airRatio){
 

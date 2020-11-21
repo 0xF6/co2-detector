@@ -13,9 +13,14 @@
 #define ADC_Bit_Resolution (10)
 #define RatioMQ9CleanAir (4.4)
 
+#define BUTTON 4
 #define MQ9_AO A5
 #define ON_BOARD_LED 13
 #define ALARM 10
+
+int lastBtnState = LOW;
+int currentBtnState = 0;
+bool buzzerEnabled = true;
 
 
 TM74 display(SCLK, RCLK, DIO);
@@ -26,6 +31,8 @@ int sensorValue = 0;
 void thread()
 {
   draw(sensorValue);
+  if (!buzzerEnabled)
+    return;
   int level = getWarningIndex(sensorValue);
   if(level != -1 && millis() % level == 0)
   {
@@ -48,6 +55,7 @@ void setup()
   Serial.begin(9600);
   pin<ON_BOARD_LED>().mode(OUTPUT);
   pin<ALARM>().mode(OUTPUT);
+  pin<BUTTON>().mode(INPUT_PULLUP);
   MQ9.setRegressionMethod(1);
 
   float a = 0.0;
@@ -64,13 +72,21 @@ void setup()
   Timer1.initialize(2000);
   Timer1.attachInterrupt(thread);
 }
+
 void loop()
 {
+  
   MQ9.update();
   auto value = (int)MQ9.readSensor();
   
   noInterrupts();
   sensorValue = value;
+  currentBtnState = pin<BUTTON>().digital().read();
+
+  if(lastBtnState == LOW && currentBtnState == HIGH)
+    buzzerEnabled = !buzzerEnabled;
+
+  lastBtnState = currentBtnState;
   interrupts();
   if (getUptimeSecond() > 100)
     reboot<A1>();
